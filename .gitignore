@@ -18,3 +18,4 @@ dicts/dataLuiS.json
 dicts/deviceCustomizationLuis.json
 dicts/deviceCustomization-bettina.json
 attendanceData/knownRFIDcards.json
+tests/geckodriver.log

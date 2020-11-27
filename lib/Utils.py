@@ -135,7 +135,6 @@ def getJsonData(filePath):
     return data  
   except Exception as e:
     print("exception while getting/loading data from json file: ", filePath, " -exception: ", e)
-    #_logger.exception(e):
     return None
 
 def storeJsonData(filePath,data):

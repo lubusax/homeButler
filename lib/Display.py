@@ -1,5 +1,4 @@
 import time
-import logging
 
 from PIL import Image, ImageFont
 from luma.core.render import canvas
@@ -8,7 +7,6 @@ from dicts.ras_dic import display_driver
 from . import routes
 from . import Utils
 
-_logger = logging.getLogger(__name__)
 
 class Display:
 	def __init__(self):
@@ -17,7 +15,7 @@ class Display:
 		self.img_path = Utils.WORK_DIR + "images/"
 		self.device = get_device(("-d", display_driver))
 		print("in Display class init: self.device is ", self.device)
-		_logger.debug("Display Class Initialized")
+
 		self.fontClockTime = ImageFont.truetype(self.fontRoboto, 42)
 		self.fontClockInfos = ImageFont.truetype(self.fontRoboto, 10)
 		self.font3 = ImageFont.truetype(self.fontRoboto, 22)
@@ -83,7 +81,7 @@ class Display:
 		font = ImageFont.truetype(self.fontRoboto, size)
 		with canvas(self.device) as draw:
 				draw.multiline_text(origin, text, fill="white", font=font, align="center")
-		_logger.debug("Displaying message: " + text)
+
 
 
 	#@Utils.timer
@@ -111,4 +109,4 @@ class Display:
 	def clear_display(self):
 		with canvas(self.device) as draw:
 			draw.multiline_text((0, 0), " ")
-			_logger.debug("Clear display")
+
