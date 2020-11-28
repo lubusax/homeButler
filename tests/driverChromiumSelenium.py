@@ -18,7 +18,7 @@ def measurementUpDownBandwidth(driver, measurementPeriod):
   go_button.click()
   print("after click go measure")
   #timestamp = time.strftime('%y%m%d%H%M%S',time.localtime())
-  timestamp = time.strftime('%d%H%M%S',time.localtime())
+  timestamp = time.strftime('%H%M',time.localtime())
   time.sleep(measurementPeriod)
   #driver.get_screenshot_as_file("capture.png") # works fine
   driver.save_screenshot("capture.png")
@@ -49,28 +49,45 @@ def clickAcceptGDPRpopup(driver):
   print("after click GDPR pop-up")
   time.sleep(3)
 
-Disp = Display.Display()
-Disp.displayMsgRaw([(0,0), 16, "Hello"])
-driver = getDriver()
-webSite = "https://www.speedtest.net/"
 measurementPeriod = 60 # seconds
 minUp = 10000
 maxUp = 0
-getWebSite(driver, webSite)
-clickAcceptGDPRpopup(driver)
+up=10.0
+timeMin = "0204"
+webSite = "https://www.speedtest.net/"
+
+Disp = Display.Display()
+Disp.displayMsgRaw([(0,0), 16, "Hello"])
+
+driver = getDriver()
+# getWebSite(driver, webSite)
+
+# clickAcceptGDPRpopup(driver)
+
 while True:
-  [timestamp,up,down] = measurementUpDownBandwidth(driver, measurementPeriod)
-  print("after measurements")
-  print("TIMESTAMP: ", timestamp)
-  print("UP: ", up)
-  print("DOWN: ", down)
-  if up>maxUp:
-    maxUp =(up)
+  try:
+    Disp.displayMsgRaw([(0,5), 16, "LAST: "+str(up)+ "\nMIN: "+str(minUp)+"\ntime MIN: "+ str(timeMin)+ "\nMAX: "+str(maxUp)])
+    getWebSite(driver, webSite)
+    try:
+      clickAcceptGDPRpopup(driver)
+    except Exception as e:
+      print ("there was an exception while trying to click GDPR Pop Up: ",e)
+    [timestamp,up,down] = measurementUpDownBandwidth(driver, measurementPeriod)
+    print("after measurements")
+    print("TIMESTAMP: ", timestamp)
+    print("UP: ", up)
+    print("DOWN: ", down)
+    if up>maxUp:
+      maxUp =(up)
 
-  if up<minUp:
-    minUp=up
-    timeMin = timestamp
+    if up<minUp:
+      minUp=up
+      timeMin = timestamp
 
-  Disp.displayMsgRaw([(0,5), 16, "LAST: "+str(up)+ "/nMIN: "+str(minUp)+"/ntime MIN: "+ str(timeMin)+ "/nMAX: "+str(maxUp)])
+    Disp.displayMsgRaw([(0,5), 16, "LAST: "+str(up)+ "/nMIN: "+str(minUp)+"/ntime MIN: "+ str(timeMin)+ "/nMAX: "+str(maxUp)])
+  except Exception as e:
+    print ("there was an exception while trying to measure the bandwidth: ",e)
+
+
 
 
