@@ -1,3 +1,16 @@
+# downloaded chrome driver build for ubuntu (arm)
+# installed with "sudo dpkg -I chromedriver_blah_blah.deb"
+# moved to /usr/local/share/driver (previously made symlinks with /usr/)
+# included it in PATH (modifying .bashrc of user pi)
+
+# run chromium-browser --headless
+# you need to run this script as "sudo" if you want to save screenshots
+# but if you run this script as sudo, then you have to --no-sandbox (as an option)
+#https://medium.com/@pyzzled/running-headless-chrome-with-selenium-in-python-3f42d1f5ff1d
+#https://chromedriver.chromium.org/getting-started ## headless option missing?
+# get chromedriver # https://stackoverflow.com/questions/42492646/error-using-selenium-with-chromedriver-on-raspberry-pi-3-raspbian-jessie
+
+
 import sys
 
 # sys.path.append("/home/pi/ras/lib")
@@ -28,13 +41,12 @@ def measurementUpDownBandwidth(driver, measurementPeriod):
 
 @Utils.timer
 def getDriver():
-  chrome_options = Options()
-  chrome_options.add_argument("--headless")
-  chrome_options.add_argument("--window-size=1920x1080")
-  chrome_options.add_argument("--no-sandbox")
+  options = Options()
+  options.add_argument("--headless")
+  options.add_argument("--window-size=1920x1080")
+  options.add_argument("--no-sandbox")
 
-  driver = webdriver.Chrome(options=chrome_options, executable_path='/usr/local/share/chromedriver')  # Optional argument, if not specified will search path.
-  return driver
+  driver = webdriver.Chrome(options=options, executable_path='/usr/local/share/chromedriver')
 
 @Utils.timer
 def getWebSite(driver, webSite):
@@ -49,12 +61,16 @@ def clickAcceptGDPRpopup(driver):
   print("after click GDPR pop-up")
   time.sleep(3)
 
+def appendMeasurement(filePath,timestamp, up, down):
+  pass
+
 measurementPeriod = 60 # seconds
 minUp = 10000
 maxUp = 0
 up=10.0
 timeMin = "0204"
 webSite = "https://www.speedtest.net/"
+fileBandwidthMeasurements = "fileBandwidthMeasurements"
 
 Disp = Display.Display()
 Disp.displayMsgRaw([(0,0), 16, "Hello"])
@@ -66,13 +82,14 @@ driver = getDriver()
 
 while True:
   try:
-    Disp.displayMsgRaw([(0,5), 16, "LAST: "+str(up)+ "\nMIN: "+str(minUp)+"\ntime MIN: "+ str(timeMin)+ "\nMAX: "+str(maxUp)])
+    Disp.displayMsgRaw([(0,1), 16, "LAST: "+str(up)+ "\nMIN: "+str(minUp)+"\ntime MIN: "+ str(timeMin)+ "\nMAX: "+str(maxUp)])
     getWebSite(driver, webSite)
     try:
       clickAcceptGDPRpopup(driver)
     except Exception as e:
       print ("there was an exception while trying to click GDPR Pop Up: ",e)
     [timestamp,up,down] = measurementUpDownBandwidth(driver, measurementPeriod)
+    appendMeasurement(fileBandwidthMeasurements,timestamp, up, down)
     print("after measurements")
     print("TIMESTAMP: ", timestamp)
     print("UP: ", up)
