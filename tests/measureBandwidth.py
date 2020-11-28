@@ -87,13 +87,13 @@ def getPathFileBandwidthMeasurements():
     pass
   return pathFile
   
-measurementPeriod = 600 # seconds
+measurementPeriod = 300 # seconds
 minUp = 10000
 maxUp = 0
 timeUntilNextScreenshot = -1 
-periodBetweenScreenshots = 3600 # seconds
+periodBetweenScreenshots = 1800 # seconds
 timestampLastScreenshot = 0
-webSite = "https://www.speedtest.net/de"
+webSite = "https://www.speedtest.net"
 
 fileBandwidthMeasurements = getPathFileBandwidthMeasurements()
 
@@ -101,27 +101,29 @@ Disp = Display.Display()
 #Disp.displayMsgRaw([(0,0), 16, "Hello"])
 
 driver = getDriver()
+getWebSite(driver, webSite)
+try:
+  clickAcceptGDPRpopup(driver)
+except Exception as e:
+  print ("there was an exception while trying to click GDPR Pop Up: ",e)
 
 while True:
   try:
-    getWebSite(driver, webSite)
-
-    try:
-      clickAcceptGDPRpopup(driver)
-    except Exception as e:
-      print ("there was an exception while trying to click GDPR Pop Up: ",e)
 
     [timestamp,up,down] = measurementUpDownBandwidth(driver, measurementPeriod)
 
-    if up>maxUp: maxUp = up
+    if up>maxUp:
+      maxUp = up
 
-    if up<minUp: (minUp, timeMin) = (up, timestamp)
+    if up<minUp:
+      minUp = up
+      timeMin = timestamp
 
     (timestampLastScreenshot, timeUntilNextScreenshot) = makeScreenshotMeasurement(timestampLastScreenshot, timeUntilNextScreenshot, periodBetweenScreenshots)
     appendMeasurement(fileBandwidthMeasurements,timestamp, up, down)
     
     print("after measurements "+timestamp+"- UP: "+str(up)+"- DOWN: "+str(down) )
-    Disp.displayMsgRaw([(0,5), 16, "LAST: "+str(up)+ "/nMIN: "+str(minUp)+"/ntime MIN: "+ str(timeMin)+ "/nMAX: "+str(maxUp)])
+    Disp.displayMsgRaw([(0,5), 16, "LAST: "+str(up)+ "/nMIN: "+str(minUp)+"/ntime MIN: "+ timeMin + "/nMAX: "+str(maxUp)])
   except Exception as e:
     print ("there was an exception while trying to measure the bandwidth: ",e)
 
