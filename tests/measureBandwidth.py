@@ -76,7 +76,7 @@ def clickAcceptGDPRpopup(driver):
 
 def appendMeasurement(pathFile,timestamp, up, down):
   with open(pathFile, 'a') as f: 
-    f.write(str(timestamp)+","+str(up)+","+str(down)+"\n")
+    f.write(str(timestamp)+", "+str(up)+", "+str(down)+"\n")
 
 def getPathFileBandwidthMeasurements():
   directory = os.getcwd()+"/measurementsBandwidth"

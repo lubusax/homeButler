@@ -31,28 +31,18 @@ def getTimestamp():
 def getDay():
   return time.strftime('%y%m%d',time.localtime())
 
-#@Utils.timer
+@Utils.timer
 def measurementUpDownBandwidth(driver, measurementWaitPeriod):
-  print("in method measurementUpDownBandwidth ")
   go_button = driver.find_element_by_css_selector(".start-button a")
   go_button.click()
   timestamp = getTimestamp()
-  driver.save_screenshot("screenBefore.png")
+  appendLineToFile(fileLog, "in method measurementUpDownBandwidth " + timestamp)
+  #driver.save_screenshot("screenBefore.png")
   time.sleep(measurementWaitPeriod)
-  driver.save_screenshot("screenAfter.png")  
+  #driver.save_screenshot("screenAfter.png")  
   up = driver.find_element_by_xpath('//*[@id="container"]/div/div[3]/div/div/div/div[2]/div[3]/div[3]/div/div[3]/div/div/div[2]/div[1]/div[2]/div/div[2]/span').text
   down = driver.find_element_by_xpath('//*[@id="container"]/div/div[3]/div/div/div/div[2]/div[3]/div[3]/div/div[3]/div/div/div[2]/div[1]/div[3]/div/div[2]/span').text
   return [timestamp,float(up),float(down)]
-
-# def makeScreenshotMeasurement(timestampLastScreenshot, timeUntilNextScreenshot, periodBetweenScreenshots):
-  #   if timeUntilNextScreenshot < 0:
-  #     pathScreenshot = os.getcwd()+"/measurementsBandwidth/screenshotBandwidth" + getTimestamp() + ".png"
-  #     driver.save_screenshot(pathScreenshot)
-  #     timestampLastScreenshot = int(time.time())
-  #     timeUntilNextScreenshot = periodBetweenScreenshots
-  #   else:
-  #     timeUntilNextScreenshot = timeUntilNextScreenshot + timestampLastScreenshot - time.localtime()
-  #   return (timestampLastScreenshot, timeUntilNextScreenshot)
 
 @Utils.timer
 def getDriver():
@@ -74,53 +64,50 @@ def clickAcceptGDPRpopup(driver):
   # Depending on your location, you might need to accept the GDPR pop-up.
   accept_button = driver.find_element_by_id("_evidon-banner-acceptbutton")
   accept_button.click()
-  print("after click GDPR pop-up")
+  appendLineToFile(fileLog, "after click GDPR pop-up")
   time.sleep(3)
 
-def appendMeasurement(pathFile,timestamp, up, down):
+def appendLineToFile(pathFile,lineToAppend):
   with open(pathFile, 'a') as f: 
-    f.write(str(timestamp)+","+str(up)+","+str(down)+"\n")
+    f.write(str(lineToAppend+"\n"))
 
-def getPathFileBandwidthMeasurements():
-  directory = os.getcwd()+"/measurementsBandwidth"
+def getPathFile(fileType):
+  directory = "/home/pi/homeButler/tests/measurementsBandwidth"
   if not os.path.exists(directory):
     os.mkdir(directory)
-  pathFile = directory + "/data" + getDay()
-  with open(pathFile, 'w') as f: 
-    pass
+  pathFile = directory + "/" + fileType + getDay()
+  print("filetype "+fileType+ " : "+pathFile)
+  if not os.path.exists(pathFile):
+    with open(pathFile, 'w') as f: 
+      pass
   return pathFile
-  
+
 measurementWaitPeriod = 60 # seconds
-# minUp = 10000
-# maxUp = 0
-# timeUntilNextScreenshot = -1 
-# periodBetweenScreenshots = 1800 # seconds
-# timestampLastScreenshot = 0
+
 webSite = "https://www.speedtest.net"
 
-fileBandwidthMeasurements = getPathFileBandwidthMeasurements()
+fileMeasurementsData  = getPathFile("data")
+fileLog               = getPathFile("logNew")
 
-Disp = Display.Display()
-#Disp.displayMsgRaw([(0,0), 16, "Hello"])
+appendLineToFile(fileLog, "starting measureBandwidthOnce at "+ getTimestamp() )
 
-driver = getDriver()
-getWebSite(driver, webSite)
-try:
-  clickAcceptGDPRpopup(driver)
-except Exception as e:
-  print ("there was an exception while trying to click GDPR Pop Up: ",e)
+# driver                = getDriver()
+# getWebSite( driver, webSite)
 
-try:
+# try:
+#   clickAcceptGDPRpopup( driver)
+# except Exception as e:
+#   print ("there was an exception while trying to click GDPR Pop Up: ",e)
 
-  [timestamp,up,down] = measurementUpDownBandwidth(driver, measurementWaitPeriod)
-
-  #(timestampLastScreenshot, timeUntilNextScreenshot) = makeScreenshotMeasurement(timestampLastScreenshot, timeUntilNextScreenshot, periodBetweenScreenshots)
-  appendMeasurement(fileBandwidthMeasurements,timestamp, up, down)
-  
-  print("after measurements "+timestamp+"- UP: "+str(up)+"- DOWN: "+str(down) )
-  Disp.displayMsgRaw([(0,5), 16, "LAST: "+str(up)+ "\n\nTIME:"+ timestamp])
-except Exception as e:
-  print ("there was an exception while trying to measure the bandwidth: ",e)
+# try:
+#   [timestamp,up,down] = measurementUpDownBandwidth( driver, measurementWaitPeriod)
+#   appendLineToFile(fileMeasurementsData, str(timestamp)+", "+str(up)+", "+str(down))
+#   appendLineToFile(fileLog, "after measurements "+timestamp+"- UP: "+str(up)+"- DOWN: "+str(down))
+#   print("after measurements "+timestamp+"- UP: "+str(up)+"- DOWN: "+str(down) )
+# except Exception as e:
+#   print("there was an exception while trying to measure the bandwidth: " + e)
+#   appendLineToFile(fileLog, "there was an exception while trying to measure the bandwidth: " + e)
+#   appendLineToFile(fileLog, "_"*100)
 
 
 
